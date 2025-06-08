@@ -1,0 +1,6 @@
+#ifndef GHAHOOK_VERSION_H
+#define GHAHOOK_VERSION_H
+
+#define GHAHOOK_VERSION_STR "0.1-dev"
+
+#endif // GHAHOOK_VERSION_H
