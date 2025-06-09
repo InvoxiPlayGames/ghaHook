@@ -26,6 +26,10 @@ typedef struct _gha_exe_offsets
     int hasp_get_sessioninfo;
     int RTInitCoinUp;
     int RTCoinUpSetLocation;
+    // instruction patches
+    int SIO_Device_get_status_name_check;
+    // rdata
+    int version_txt_path;
     // globals
     int testWaitingCount; // ScriptCheckTestWaitingCount
     int startWaitingCount1; // ScriptCheckStartWaitingCount

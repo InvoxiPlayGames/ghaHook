@@ -21,6 +21,12 @@ void InitOffsets_4b1fe8d6(gha_exe_offsets *offsets)
     offsets->hasp_read = 0x8012a0;
     offsets->hasp_write = 0x801370;
     offsets->hasp_get_sessioninfo = 0x801010;
+    offsets->RTInitCoinUp = 0x511e00;
+    offsets->RTCoinUpSetLocation = 0x511cd0;
+    // instruction offsets
+    offsets->SIO_Device_get_status_name_check = 0x5194f9; // jnz after the name check in SIO::Device::get_status
+    // rdata
+    offsets->version_txt_path = 0x929858;
     // waiting counts for service panel buttons
     offsets->testWaitingCount = 0xc26c40;
     offsets->startWaitingCount1 = 0xc26bec;

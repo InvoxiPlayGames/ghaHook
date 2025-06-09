@@ -1,5 +1,6 @@
 #include <Windows.h>
 #include <stdio.h>
+#include <Shlwapi.h>
 #include <MinHook.h>
 
 #include "exception_handler.h"
@@ -17,7 +18,7 @@ void ghaHook_fatal(const char *text)
 gha_exe_offsets offsets;
 jammaop2_struct op2data;
 
-int ghaHook_InputThreadActive = 1;
+int ghaHook_InputThreadActive = 0;
 DWORD WINAPI ghaHook_InputThread(void *)
 {
     while (ghaHook_InputThreadActive)
@@ -37,7 +38,7 @@ DWORD WINAPI ghaHook_InputThread(void *)
             if (offsets.coinWaitingCount1 != 0)
                 *(int *)offsets.coinWaitingCount1 = 1;
         }
-        Sleep(30);
+        Sleep(120);
     }
     return 0;
 }
@@ -172,8 +173,34 @@ void init_ghaHook()
     MH_CreateHook((void *)offsets.SIO_check_dongle, SIO_check_dongle_hooked, NULL);
     MH_CreateHook((void *)offsets.SIO_update_periodicreboot, SIO_update_periodicreboot_hooked, NULL);
     MH_EnableHook(MH_ALL_HOOKS);
+    // fix for missing D:\version.txt
+    if (!PathFileExistsA("D:\\version.txt"))
+    {
+        char newVersionText[] = "No: version.txt\nwas: found!\nSo: here's\na: placeholder\nfor: you!";
+        char newVersionPath[] = "version.txt";
+        CodePatch(offsets.version_txt_path, newVersionPath, sizeof(newVersionPath));
+        if (!PathFileExistsA("version.txt"))
+        {
+            FILE *fp = fopen("version.txt", "w+");
+            if (fp != NULL)
+            {
+                fwrite(newVersionText, strlen(newVersionText), 1, fp);
+                fclose(fp);
+            }
+        }
+    }
+    // instruction patches
+    if (config.EnableDeviceNameHook)
+    {
+        BYTE six_nops[6];
+        memset(six_nops, 0x90, sizeof(six_nops));
+        CodePatch(offsets.SIO_Device_get_status_name_check, six_nops, sizeof(six_nops));
+    }
+    BYTE ret = { 0xC3 };
+    CodePatch(offsets.RTInitCoinUp, &ret, 1);
+    CodePatch(offsets.RTCoinUpSetLocation, &ret, 1);
     // start our thread
-    CreateThread(NULL, 0x8000, ghaHook_InputThread, NULL, 0, NULL);
+    //CreateThread(NULL, 0x8000, ghaHook_InputThread, NULL, 0, NULL);
 }
 
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)

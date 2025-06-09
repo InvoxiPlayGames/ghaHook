@@ -9,6 +9,7 @@ typedef struct _ghaHook_config
 {
     int EnableIOHooks;
     int EnableDongleHooks;
+    int EnableDeviceNameHook;
 } ghaHook_config;
 
 extern ghaHook_config config;
